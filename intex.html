@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Batalla de Guardia: El Juego 🩺🇻🇪</title>
+    <title>Batalla de Guardia: Edición Tips 🩺🇻🇪</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .card-hover { transition: all 0.2s ease; }
@@ -91,7 +91,11 @@
                 <!-- Inyectadas por JS -->
             </div>
 
-            <div id="feedback" class="mt-4 text-center font-bold text-sm hidden"></div>
+            <!-- Recuadro Dinámico de Feedback y Tip Clínico -->
+            <div id="feedback-container" class="mt-4 p-4 rounded-xl border border-slate-700 bg-slate-950/80 hidden">
+                <p id="feedback-title" class="font-bold text-sm mb-1"></p>
+                <p id="feedback-tip" class="text-xs text-slate-300 leading-relaxed"></p>
+            </div>
         </div>
 
         <!-- Pantalla 3: Fin de Partida -->
@@ -136,7 +140,8 @@
                 ],
                 correcta: 1,
                 pista: "Piensa en el efecto acumulativo de la gravedad tras estar de pie durante todo el día.",
-                videoTip: "Tip Flash: El edema cardíaco respeta la ley de la gravedad. De día se acumula en extremidades inferiores y al atardecer marca la fóvea perfectamente."
+                videoTip: "Tip Flash: El edema cardíaco respeta la ley de la gravedad. De día se acumula en extremidades inferiores y al atardecer marca la fóvea perfectamente.",
+                explicacionTip: "💡 **Tip Clínico:** Recuerda que el edema de origen cardíaco se debe al aumento de la presión hidrostática capilar y retención hidrosalina. Empeora con bipedestación prolongada (vespertino) y deja fóvea (signo del soyuelo)."
             },
             {
                 pregunta: "Si un paciente llega a la emergencia diciendo 'Doctor, siento un treque-treque en el pecho y un payaseo', traduciéndolo al argot médico, ¿qué describe?",
@@ -148,7 +153,8 @@
                 ],
                 correcta: 1,
                 pista: "Son expresiones coloquiales muy venezolanas para referirse a latidos irregulares o acelerados.",
-                videoTip: "Tip Flash: Nunca descartes un trastorno del ritmo cardíaco por la forma descriptiva del paciente. ¡Evalúa siempre con monitor o EKG a mano!"
+                videoTip: "Tip Flash: Nunca descartes un trastorno del ritmo cardíaco por la forma descriptiva del paciente. ¡Evalúa siempre con monitor o EKG a mano!",
+                explicacionTip: "💡 **Tip Clínico:** En la práctica hospitalaria venezolana, el paciente usa términos muy pintorescos. 'Treque-treque' o 'payaseo' en el tórax casi siempre traducen extrasístoles frecuentes, taquicardias paroxísticas o aleteo auricular."
             },
             {
                 pregunta: "¿Qué combinación farmacológica mítica es el pan de cada día para calmar dolores abdominales agudos inespecíficos en retén?",
@@ -160,7 +166,8 @@
                 ],
                 correcta: 1,
                 pista: "Es un clásico antiespasmódico mezclado con analgésico que alivia el dolor mientras se evalúa el abdomen.",
-                videoTip: "Tip Flash: Ojo con enmascarar signos de irritación peritoneal con analgésicos antes de que te examine el cirujano de guardia."
+                videoTip: "Tip Flash: Ojo con enmascarar signos de irritación peritoneal con analgésicos antes de que te examine el cirujano de guardia.",
+                explicacionTip: "💡 **Tip Clínico:** La combinación de hioscina (antiespasmódico) con dipirona (analgésico potente IV) es el recurso clásico de emergencia. Sin embargo, ¡cuidado! Un dolor abdominal agudo requiere descartar abdomen agudo quirúrgico antes de calmarlo por completo."
             },
             {
                 pregunta: "¿Qué patología sugiere fuertemente la presencia combinada de cianosis central y acropaquia (dedos en palillo de tambor)?",
@@ -172,7 +179,8 @@
                 ],
                 correcta: 1,
                 pista: "La hipoxia tisular crónica durante años estimula el crecimiento tisular en las falanges distales.",
-                videoTip: "Tip Flash: La acropaquia es crónica; no aparece de la noche a la mañana. Busca siempre cortocircuitos de derecha a izquierda."
+                videoTip: "Tip Flash: La acropaquia es crónica; no aparece de la noche a la mañana. Busca siempre cortocircuitos de derecha a izquierda.",
+                explicacionTip: "💡 **Tip Clínico:** La acropaquia (dedos hipocráticos) unida a cianosis central indica hipoxemia crónica tisular de larga data, típica de cardiopatías congénitas complejos con shunt de derecha a izquierda (ej. Tetralogía de Fallot)."
             }
         ];
 
@@ -224,8 +232,8 @@
             const optionsContainer = document.getElementById("options-container");
             optionsContainer.innerHTML = "";
             
-            const feedback = document.getElementById("feedback");
-            feedback.classList.add("hidden");
+            const feedbackContainer = document.getElementById("feedback-container");
+            feedbackContainer.classList.add("hidden");
 
             actual.opciones.forEach((opcion, idx) => {
                 const btn = document.createElement("button");
@@ -258,15 +266,20 @@
             const botones = document.querySelectorAll("#options-container button");
             botones.forEach(b => b.disabled = true);
             
-            const feedback = document.getElementById("feedback");
-            feedback.innerText = "⌛ ¡Se acabó el tiempo en la guardia! Siguiente caso.";
-            feedback.className = "mt-4 text-center font-bold text-sm text-amber-400";
-            feedback.classList.remove("hidden");
+            const actual = bancoPreguntas[indicePregunta];
+            const feedbackContainer = document.getElementById("feedback-container");
+            const feedbackTitle = document.getElementById("feedback-title");
+            const feedbackTip = document.getElementById("feedback-tip");
+
+            feedbackTitle.innerText = "⌛ ¡Se acabó el tiempo en la guardia!";
+            feedbackTitle.className = "font-bold text-sm mb-1 text-amber-400";
+            feedbackTip.innerHTML = actual.explicacionTip;
+            feedbackContainer.classList.remove("hidden");
 
             setTimeout(() => {
                 indicePregunta++;
                 cargarPregunta();
-            }, 2000);
+            }, 4500);
         }
 
         function verificarRespuesta(seleccionada, boton) {
@@ -275,14 +288,16 @@
             const botones = document.querySelectorAll("#options-container button");
             botones.forEach(b => b.disabled = true);
 
-            const feedback = document.getElementById("feedback");
-            feedback.classList.remove("hidden");
+            const feedbackContainer = document.getElementById("feedback-container");
+            const feedbackTitle = document.getElementById("feedback-title");
+            const feedbackTip = document.getElementById("feedback-tip");
 
             if (seleccionada === actual.correcta) {
                 boton.classList.remove("bg-slate-800/80", "border-slate-700");
                 boton.classList.add("bg-emerald-600/90", "border-emerald-500", "text-white");
-                feedback.innerText = "¡Excelente diagnóstico! El adjunto aprueba tu pase de visita. 🌟";
-                feedback.className = "mt-4 text-center font-bold text-sm text-emerald-400";
+                
+                feedbackTitle.innerText = "¡Excelente diagnóstico! El adjunto aprueba tu pase de visita. 🌟";
+                feedbackTitle.className = "font-bold text-sm mb-1 text-emerald-400";
                 puntaje += 25;
                 document.getElementById("score-val").innerText = puntaje;
             } else {
@@ -292,14 +307,17 @@
                 botones[actual.correcta].classList.remove("bg-slate-800/80", "border-slate-700");
                 botones[actual.correcta].classList.add("bg-emerald-600/90", "border-emerald-500", "text-white");
                 
-                feedback.innerText = "¡Ay, mi madre! Fallaste el caso clínico.";
-                feedback.className = "mt-4 text-center font-bold text-sm text-rose-400";
+                feedbackTitle.innerText = "¡Ay, mi madre! Fallaste el caso clínico.";
+                feedbackTitle.className = "font-bold text-sm mb-1 text-rose-400";
             }
+
+            feedbackTip.innerHTML = actual.explicacionTip;
+            feedbackContainer.classList.remove("hidden");
 
             setTimeout(() => {
                 indicePregunta++;
                 cargarPregunta();
-            }, 2500);
+            }, 5000);
         }
 
         function usarComodin50() {
