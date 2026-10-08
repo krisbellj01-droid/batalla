@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batalla de Guardia: El Juego 🩺🇻🇪</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-3px); }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
+
+    <!-- Header -->
+    <header class="py-4 bg-slate-900 border-b border-purple-900/50 text-center shadow-lg">
+        <h1 class="text-2xl md:text-3xl font-black tracking-wider text-purple-400">Batalla de Guardia 🩺🔥</h1>
+        <p class="text-xs text-slate-400 mt-1">Donde la semiología se encuentra con la realidad del hospital</p>
+    </header>
+
+    <!-- Contenedor Principal -->
+    <main class="max-w-3xl w-full mx-auto p-4 flex flex-col justify-center my-auto">
+        
+        <!-- Pantalla 1: Selección de Avatar -->
+        <div id="avatar-screen" class="bg-slate-900/90 border border-purple-900/40 p-6 rounded-2xl shadow-2xl text-center">
+            <h2 class="text-xl font-bold text-slate-200 mb-2">Elige tu rol para sobrevivir al turno</h2>
+            <p class="text-xs text-slate-400 mb-6">Cada personaje tiene su propia actitud frente a la emergencia.</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                <div onclick="seleccionarAvatar('Estudiante de 5to año', '📖', 'Sufrido, con su estetoscopio de 5 dólares y el Surós bajo el brazo.')" class="card-hover p-4 bg-slate-800/80 border border-slate-700 rounded-xl cursor-pointer text-left flex items-center gap-4">
+                    <span class="text-3xl">📖</span>
+                    <div>
+                        <h3 class="font-bold text-purple-300">Estudiante de 5to año</h3>
+                        <p class="text-xs text-slate-400">"Doctor, ¿puedo percutir al paciente?"</p>
+                    </div>
+                </div>
+                <div onclick="seleccionarAvatar('Residente de 1er Año (R1)', '☕', 'No duerme desde hace 72 horas y vive a punta de café.')" class="card-hover p-4 bg-slate-800/80 border border-slate-700 rounded-xl cursor-pointer text-left flex items-center gap-4">
+                    <span class="text-3xl">☕</span>
+                    <div>
+                        <h3 class="font-bold text-amber-400">Residente de 1er Año (R1)</h3>
+                        <p class="text-xs text-slate-400">"El paciente de la cama 4 convulsionó otra vez."</p>
+                    </div>
+                </div>
+                <div onclick="seleccionarAvatar('Médico Adjunto', '📋', 'Llega tarde, te pica adelante y te pregunta semiología del siglo XIX.')" class="card-hover p-4 bg-slate-800/80 border border-slate-700 rounded-xl cursor-pointer text-left flex items-center gap-4">
+                    <span class="text-3xl">📋</span>
+                    <div>
+                        <h3 class="font-bold text-emerald-400">Médico Adjunto</h3>
+                        <p class="text-xs text-slate-400">"¿Ya leyó la historia clínica completa, colega?"</p>
+                    </div>
+                </div>
+                <div onclick="seleccionarAvatar('Enfermera de Triage', '🛡️', 'La verdadera dueña del hospital. Si ella dice que no pasa, no pasa.')" class="card-hover p-4 bg-slate-800/80 border border-slate-700 rounded-xl cursor-pointer text-left flex items-center gap-4">
+                    <span class="text-3xl">🛡️</span>
+                    <div>
+                        <h3 class="font-bold text-rose-400">Enfermera de Triage</h3>
+                        <p class="text-xs text-slate-400">"Aquí no hay camillas, mijo, búsquese una silla."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla 2: Juego Activo -->
+        <div id="game-screen" class="hidden bg-slate-900/90 border border-purple-900/40 p-6 rounded-2xl shadow-2xl">
+            <!-- Barra superior del juego -->
+            <div class="flex justify-between items-center mb-4 text-xs">
+                <span id="player-badge" class="px-3 py-1 bg-purple-900/40 border border-purple-500/50 text-purple-300 rounded-full font-bold">Rol</span>
+                <span class="text-slate-300">Puntaje: <strong id="score-val" class="text-purple-400">0</strong> pts</span>
+                <span id="timer" class="font-bold text-amber-400">⏱️ 20s</span>
+            </div>
+
+            <!-- Comodines de Guardia -->
+            <div class="flex justify-center gap-2 mb-6 flex-wrap">
+                <button onclick="usarComodin50()" id="btn-50" class="px-3 py-1.5 bg-purple-900/30 border border-purple-500/40 rounded-lg text-xs font-semibold text-purple-300 hover:bg-purple-800/40 transition">
+                    ☕ 50:50 (Café)
+                </button>
+                <button onclick="usarComodinPista()" id="btn-pista" class="px-3 py-1.5 bg-purple-900/30 border border-purple-500/40 rounded-lg text-xs font-semibold text-purple-300 hover:bg-purple-800/40 transition">
+                    📞 Llamar al Adjunto
+                </button>
+                <button onclick="usarComodinVideo()" id="btn-video" class="px-3 py-1.5 bg-purple-900/30 border border-purple-500/40 rounded-lg text-xs font-semibold text-purple-300 hover:bg-purple-800/40 transition">
+                    📺 Video de Guardia
+                </button>
+            </div>
+
+            <!-- Pregunta -->
+            <div class="mb-6">
+                <span id="q-counter" class="text-xs text-purple-400 font-bold uppercase tracking-wider">Pregunta 1</span>
+                <h3 id="question-text" class="text-lg md:text-xl font-medium text-slate-100 mt-1">Cargando...</h3>
+            </div>
+
+            <!-- Opciones -->
+            <div id="options-container" class="grid grid-cols-1 gap-3">
+                <!-- Inyectadas por JS -->
+            </div>
+
+            <div id="feedback" class="mt-4 text-center font-bold text-sm hidden"></div>
+        </div>
+
+        <!-- Pantalla 3: Fin de Partida -->
+        <div id="game-over-screen" class="hidden bg-slate-900/90 border border-purple-900/40 p-6 rounded-2xl shadow-2xl text-center">
+            <h2 class="text-2xl font-bold text-purple-400 mb-2">¡Guardia Finalizada! 🏆</h2>
+            <p id="final-summary" class="text-slate-300 text-sm mb-6"></p>
+            <button onclick="reiniciarJuego()" class="px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-xl font-bold transition shadow-lg text-white">
+                Elegir Otro Rol y Volver a Jugar
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Modal de "Video de Guardia" -->
+    <div id="video-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-slate-900 border border-purple-500/50 p-6 rounded-2xl max-w-md w-full text-center shadow-2xl">
+            <h3 class="text-lg font-bold text-purple-400 mb-2">📺 Cápsula Flash de Guardia</h3>
+            <div id="video-content" class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-sm text-slate-300 my-4 italic">
+                Cargando transmisión desde el pasillo...
+            </div>
+            <button onclick="cerrarModalVideo()" class="px-5 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl font-bold text-xs text-white transition">
+                ¡Entendido, a responder!
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-4 text-xs text-slate-500">
+        Batalla de Guardia • Hecho con pasión médica y sazón criolla ⚡
+    </footer>
+
+    <!-- Lógica del Juego -->
+    <script>
+        const bancoPreguntas = [
+            {
+                pregunta: "¿Cómo se caracteriza clásicamente el edema de origen cardiovascular en la exploración semiológica?",
+                opciones: [
+                    "Matutino, blando y localizado preferiblemente en párpados",
+                    "Vespertino, simétrico, frío, de fácil fóvea y ascendente",
+                    "Unilateral, duro, caliente y sumamente doloroso",
+                    "Pruriginoso, variable y acompañado de descamación"
+                ],
+                correcta: 1,
+                pista: "Piensa en el efecto acumulativo de la gravedad tras estar de pie durante todo el día.",
+                videoTip: "Tip Flash: El edema cardíaco respeta la ley de la gravedad. De día se acumula en extremidades inferiores y al atardecer marca la fóvea perfectamente."
+            },
+            {
+                pregunta: "Si un paciente llega a la emergencia diciendo 'Doctor, siento un treque-treque en el pecho y un payaseo', traduciéndolo al argot médico, ¿qué describe?",
+                opciones: [
+                    "Un cuadro psicótico agudo sin alteración orgánica",
+                    "Palpitaciones asociadas a taquicardia paroxística",
+                    "Una neuralgia intercostal benigna",
+                    "Un espasmo esofágico difuso"
+                ],
+                correcta: 1,
+                pista: "Son expresiones coloquiales muy venezolanas para referirse a latidos irregulares o acelerados.",
+                videoTip: "Tip Flash: Nunca descartes un trastorno del ritmo cardíaco por la forma descriptiva del paciente. ¡Evalúa siempre con monitor o EKG a mano!"
+            },
+            {
+                pregunta: "¿Qué combinación farmacológica mítica es el pan de cada día para calmar dolores abdominales agudos inespecíficos en retén?",
+                opciones: [
+                    "Omeprazol en infusión continua",
+                    "Buscapina compuesta (Hioscina + Dipirona) IV",
+                    "Paracetamol en supositorios",
+                    "Solución fisiológica pura a chorro"
+                ],
+                correcta: 1,
+                pista: "Es un clásico antiespasmódico mezclado con analgésico que alivia el dolor mientras se evalúa el abdomen.",
+                videoTip: "Tip Flash: Ojo con enmascarar signos de irritación peritoneal con analgésicos antes de que te examine el cirujano de guardia."
+            },
+            {
+                pregunta: "¿Qué patología sugiere fuertemente la presencia combinada de cianosis central y acropaquia (dedos en palillo de tambor)?",
+                opciones: [
+                    "Crisis asmática leve reversible",
+                    "Cardiopatía congénita cianógena crónica",
+                    "Insuficiencia cardíaca aguda descompensada de inicio súbito",
+                    "Neumonía lobar bacteriana típica"
+                ],
+                correcta: 1,
+                pista: "La hipoxia tisular crónica durante años estimula el crecimiento tisular en las falanges distales.",
+                videoTip: "Tip Flash: La acropaquia es crónica; no aparece de la noche a la mañana. Busca siempre cortocircuitos de derecha a izquierda."
+            }
+        ];
+
+        let avatarSeleccionado = null;
+        let indicePregunta = 0;
+        let puntaje = 0;
+        let temporizador = null;
+        let tiempoRestante = 20;
+        let comodin50Usado = false;
+        let comodinPistaUsado = false;
+        let comodinVideoUsado = false;
+
+        function seleccionarAvatar(nombre, icono, desc) {
+            avatarSeleccionado = { nombre, icono, desc };
+            document.getElementById("player-badge").innerText = `${icono} ${nombre}`;
+            document.getElementById("avatar-screen").classList.add("hidden");
+            document.getElementById("game-screen").classList.remove("hidden");
+            iniciarJuegoCompleto();
+        }
+
+        function iniciarJuegoCompleto() {
+            indicePregunta = 0;
+            puntaje = 0;
+            comodin50Usado = false;
+            comodinPistaUsado = false;
+            comodinVideoUsado = false;
+            document.getElementById("score-val").innerText = puntaje;
+            
+            document.getElementById("btn-50").disabled = false;
+            document.getElementById("btn-pista").disabled = false;
+            document.getElementById("btn-video").disabled = false;
+            document.getElementById("btn-50").classList.remove("opacity-50");
+            document.getElementById("btn-pista").classList.remove("opacity-50");
+            document.getElementById("btn-video").classList.remove("opacity-50");
+
+            cargarPregunta();
+        }
+
+        function cargarPregunta() {
+            if (indicePregunta >= bancoPreguntas.length) {
+                finalizarPartida();
+                return;
+            }
+
+            const actual = bancoPreguntas[indicePregunta];
+            document.getElementById("q-counter").innerText = `Pregunta ${indicePregunta + 1} de ${bancoPreguntas.length}`;
+            document.getElementById("question-text").innerText = actual.pregunta;
+            
+            const optionsContainer = document.getElementById("options-container");
+            optionsContainer.innerHTML = "";
+            
+            const feedback = document.getElementById("feedback");
+            feedback.classList.add("hidden");
+
+            actual.opciones.forEach((opcion, idx) => {
+                const btn = document.createElement("button");
+                btn.className = "card-hover p-3.5 bg-slate-800/80 border border-slate-700 rounded-xl text-left text-sm font-medium hover:bg-slate-700 transition flex items-center gap-3 text-slate-100";
+                btn.innerHTML = `<span class="text-purple-400 font-bold">${String.fromCharCode(65 + idx)}.</span> ${opcion}`;
+                btn.onclick = () => verificarRespuesta(idx, btn);
+                optionsContainer.appendChild(btn);
+            });
+
+            iniciarCronometro();
+        }
+
+        function iniciarCronometro() {
+            tiempoRestante = 20;
+            const timerEl = document.getElementById("timer");
+            timerEl.innerText = `⏱️ ${tiempoRestante}s`;
+
+            clearInterval(temporizador);
+            temporizador = setInterval(() => {
+                tiempoRestante--;
+                timerEl.innerText = `⏱️ ${tiempoRestante}s`;
+                if (tiempoRestante <= 0) {
+                    clearInterval(temporizador);
+                    tiempoAgotado();
+                }
+            }, 1000);
+        }
+
+        function tiempoAgotado() {
+            const botones = document.querySelectorAll("#options-container button");
+            botones.forEach(b => b.disabled = true);
+            
+            const feedback = document.getElementById("feedback");
+            feedback.innerText = "⌛ ¡Se acabó el tiempo en la guardia! Siguiente caso.";
+            feedback.className = "mt-4 text-center font-bold text-sm text-amber-400";
+            feedback.classList.remove("hidden");
+
+            setTimeout(() => {
+                indicePregunta++;
+                cargarPregunta();
+            }, 2000);
+        }
+
+        function verificarRespuesta(seleccionada, boton) {
+            clearInterval(temporizador);
+            const actual = bancoPreguntas[indicePregunta];
+            const botones = document.querySelectorAll("#options-container button");
+            botones.forEach(b => b.disabled = true);
+
+            const feedback = document.getElementById("feedback");
+            feedback.classList.remove("hidden");
+
+            if (seleccionada === actual.correcta) {
+                boton.classList.remove("bg-slate-800/80", "border-slate-700");
+                boton.classList.add("bg-emerald-600/90", "border-emerald-500", "text-white");
+                feedback.innerText = "¡Excelente diagnóstico! El adjunto aprueba tu pase de visita. 🌟";
+                feedback.className = "mt-4 text-center font-bold text-sm text-emerald-400";
+                puntaje += 25;
+                document.getElementById("score-val").innerText = puntaje;
+            } else {
+                boton.classList.remove("bg-slate-800/80", "border-slate-700");
+                boton.classList.add("bg-rose-600/90", "border-rose-500", "text-white");
+                
+                botones[actual.correcta].classList.remove("bg-slate-800/80", "border-slate-700");
+                botones[actual.correcta].classList.add("bg-emerald-600/90", "border-emerald-500", "text-white");
+                
+                feedback.innerText = "¡Ay, mi madre! Fallaste el caso clínico.";
+                feedback.className = "mt-4 text-center font-bold text-sm text-rose-400";
+            }
+
+            setTimeout(() => {
+                indicePregunta++;
+                cargarPregunta();
+            }, 2500);
+        }
+
+        function usarComodin50() {
+            if (comodin50Usado) return;
+            comodin50Usado = true;
+            const btn50 = document.getElementById("btn-50");
+            btn50.disabled = true;
+            btn50.classList.add("opacity-50");
+
+            const actual = bancoPreguntas[indicePregunta];
+            const botones = Array.from(document.querySelectorAll("#options-container button"));
+            let eliminadas = 0;
+
+            botones.forEach((btn, idx) => {
+                if (idx !== actual.correcta && eliminadas < 2) {
+                    btn.style.opacity = "0.2";
+                    btn.disabled = true;
+                    eliminadas++;
+                }
+            });
+        }
+
+        function usarComodinPista() {
+            if (comodinPistaUsado) return;
+            comodinPistaUsado = true;
+            const btnPista = document.getElementById("btn-pista");
+            btnPista.disabled = true;
+            btnPista.classList.add("opacity-50");
+
+            const actual = bancoPreguntas[indicePregunta];
+            alert(`📞 Mensaje del Adjunto:\n\n"${actual.pista}"`);
+        }
+
+        function usarComodinVideo() {
+            if (comodinVideoUsado) return;
+            comodinVideoUsado = true;
+            const btnVideo = document.getElementById("btn-video");
+            btnVideo.disabled = true;
+            btnVideo.classList.add("opacity-50");
+
+            const actual = bancoPreguntas[indicePregunta];
+            document.getElementById("video-content").innerText = actual.videoTip;
+            document.getElementById("video-modal").classList.remove("hidden");
+        }
+
+        function cerrarModalVideo() {
+            document.getElementById("video-modal").classList.add("hidden");
+        }
+
+        function finalizarPartida() {
+            document.getElementById("game-screen").classList.add("hidden");
+            document.getElementById("game-over-screen").classList.remove("hidden");
+            document.getElementById("final-summary").innerText = `Rol desempeñado: ${avatarSeleccionado.nombre}\nPuntaje total obtenido: ${puntaje} puntos.\n¡Sobreviviste a la guardia con éxito y conocimiento clínico!`;
+        }
+
+        function reiniciarJuego() {
+            document.getElementById("game-over-screen").classList.add("hidden");
+            document.getElementById("avatar-screen").classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>
